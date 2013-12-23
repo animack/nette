@@ -31,10 +31,5 @@
 	},
 	"autoload": {
 		"files": ["Nette/loader.php"]
-	},
-	"extra": {
-		"branch-alias": {
-			"dev-release-2.0.x": "2.0.x-dev"
-		}
 	}
 }
