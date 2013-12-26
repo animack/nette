@@ -139,7 +139,7 @@ class Compiler extends Nette\Object
 		$output = ($prologs ? $prologs . "<?php\n//\n// main template\n//\n?>\n" : '') . $output . $epilogs;
 
 		if ($this->macroNode) {
-			throw new CompileException("There are unclosed macros.", 0, $token->line);
+			throw new CompileException("There is unclosed macro {/{$this->macroNode->name}}", 0, $token->line);
 		}
 
 		$output = $this->expandTokens($output);
@@ -410,8 +410,17 @@ class Compiler extends Nette\Object
 			|| ($args && $node->args && !Strings::startsWith("$node->args ", "$args "))
 		) {
 			$name .= $args ? ' ' : '';
-			throw new CompileException("Unexpected macro {/{$name}{$args}{$modifiers}}"
-				. ($node ? ", expecting {/$node->name}" . ($args && $node->args ? " or eventually {/$node->name $node->args}" : '') : ''));
+			if (!$node) {
+				$exp = NULL;
+			} elseif ($node->htmlNode) {
+				$exp = "</{$node->htmlNode->name}>";
+			} else {
+				$exp = "{/$node->name}";
+				if ($args && $node->args) {
+					$exp .= " or eventually {/$node->name $node->args}";
+				}
+			}
+			throw new CompileException("Unexpected macro {/{$name}{$args}{$modifiers}}" . ($exp ? ", expecting $exp" : ''));
 		}
 
 		$this->macroNode = $node->parentNode;
